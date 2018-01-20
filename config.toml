@@ -1,0 +1,25 @@
+baseurl = "/"
+title = "Michael Ore"
+copyright = "Copyright &copy; 2018 - Michael Ore"
+canonifyurls = true
+theme = "hugo-kiera"
+
+paginate = 3
+
+summaryLength = 30
+enableEmoji = true
+pygmentsCodeFences = true
+
+[author]
+    name = ""
+    github = ""
+    gitlab = ""
+    linkedin = ""
+    facebook = ""
+    twitter = ""
+    instagram = ""
+
+[params]
+    tagline = "A Hugo theme for creative and technical writing"
+
+ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
