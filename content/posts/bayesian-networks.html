@@ -1,0 +1,100 @@
+---
+title: "Bayesian Networks"
+author: "Michael Ore"
+date: 2018-01-21
+categories: []
+tags: ["bayesianism", "R", "causality"]
+---
+
+
+
+<p>I’ve found the concept of causal models as described in e.g. <a href="https://www.amazon.com/Causality-Reasoning-Inference-Judea-Pearl/dp/052189560X">Pearl’s Causality 2009</a> to be a very useful tool for statistical thinking. This is the beginning of a series of posts introducing the concept and its applicability.</p>
+<p>First, we’ll introduce <a href="https://en.wikipedia.org/wiki/Bayesian_network"><strong>Bayesian networks</strong></a> (BN). A Bayesian network contains a set of random variables along with a network <strong>structure</strong> or <strong>diagram</strong>, a directed acyclic graph showing how the variables are related, and model parameters that specify precisely how variables relate to their neighbors.</p>
+<p>Our focus will mainly be on <strong>Gaussian Bayesian networks</strong> (GBN), that is, Bayesian networks where the variables are jointly a <strong>multivariate normal distribution</strong> (MVN). Each variable in a GBN is a normal distribution, and they relate to their neighbors as linear regression models.</p>
+<p>R has an excellent library for working with these models: <a href="http://www.bnlearn.com/">bnlearn</a>. We’ll use it to be able to work with these concepts more concretely, but I don’t necessarily recommend using it when more standard methods would suffice. My main goal is to develop thinking tools that are useful in interpreting other models.</p>
+<p>Let’s dive in.</p>
+<pre class="r"><code>library(bnlearn)</code></pre>
+<pre class="r"><code>mdl.A &lt;- model2network(&#39;[X][Y|X]&#39;)
+mdl.B &lt;- model2network(&#39;[X|Y][Y]&#39;)
+mdl.C &lt;- model2network(&#39;[X][Y]&#39;)
+par(mfrow=c(1, 3))
+plot(mdl.A, main=&#39;A&#39;)
+plot(mdl.B, main=&#39;B&#39;)
+plot(mdl.C, main=&#39;C&#39;)</code></pre>
+<p><img src="/posts/bayesian-networks_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>A, B, and C represent all possible network structures for a model with two variables. We’ve left the model parameters unspecified so far. We could specify these manually, but usually we would estimate these from data instead.</p>
+<p>The function <code>rmvnorm</code> from the package <code>mvtnorm</code> generates samples from a multivariate normal distribution given a mean vector and covariance matrix. We’ll use that for our working data set.</p>
+<pre class="r"><code>library(mvtnorm) # for multivariate normal distributions
+
+set.seed(525)
+n &lt;- 1000
+mu &lt;- c(100, 4+2/3)                 # mean vector
+Sigma &lt;- matrix(c(15^2, 3+3/4,      # covariance matrix
+                   3+3/4, 1+1/16),
+                 nrow=2)
+XY &lt;- rmvnorm(n, mu, Sigma)
+data.XY &lt;- data.frame(XY)
+names(data.XY) &lt;- c(&#39;X&#39;, &#39;Y&#39;)</code></pre>
+<p>For this example, we’ll take X to be a person’s IQ and Y to be a person’s log income. Accordingly we have a mean of 100 and standard deviation of 15 for the distribution of IQ. After undoing the log transformation with <span class="math inline">\(10^Y\)</span>, our income quartiles (25th, 50th, 75th percentiles) are $9,363, $46,416, $230,099.</p>
+<p>Let’s fit our models with this data.</p>
+<pre class="r"><code>fit.A &lt;- bn.fit(mdl.A, data.XY)
+fit.B &lt;- bn.fit(mdl.B, data.XY)
+fit.C &lt;- bn.fit(mdl.C, data.XY)</code></pre>
+<pre class="r"><code>fit.A</code></pre>
+<pre><code>## 
+##   Bayesian network parameters
+## 
+##   Parameters of node X (Gaussian distribution)
+## 
+## Conditional density: X
+## Coefficients:
+## (Intercept)  
+##    100.3246  
+## Standard deviation of the residuals: 14.95598 
+## 
+##   Parameters of node Y (Gaussian distribution)
+## 
+## Conditional density: Y | X
+## Coefficients:
+## (Intercept)            X  
+##  3.00882787   0.01667759  
+## Standard deviation of the residuals: 1.005616</code></pre>
+<p>Our fitted BN resembles a set of fitted linear regression models, and this isn’t a coincidence. <code>bn.fit</code> assumes you want a GBN if you give it continuous data, so it fit each variable with a linear regression.</p>
+<pre class="r"><code>fit.A.X &lt;- lm(X ~ 1, data.XY) # Only fitting intercept, effectively just taking the mean
+fit.A.Y &lt;- lm(Y ~ X, data.XY)</code></pre>
+<pre class="r"><code>coef(fit.A.X)</code></pre>
+<pre><code>## (Intercept) 
+##    100.3246</code></pre>
+<pre class="r"><code>sd(resid(fit.A.X))</code></pre>
+<pre><code>## [1] 14.95598</code></pre>
+<pre class="r"><code>coef(fit.A.Y)</code></pre>
+<pre><code>## (Intercept)           X 
+##  3.00882787  0.01667759</code></pre>
+<pre class="r"><code>sd(resid(fit.A.Y))</code></pre>
+<pre><code>## [1] 1.005112</code></pre>
+<p>Specifically, each variable is fit as a dependent variable with all of its parents in the network as independent variables. If there are no parents we fit an intercept-only linear regression, which is the same as just taking the mean.</p>
+<p>B has the edge between X and Y reversed, so the regressions are reversed too.</p>
+<pre class="r"><code>fit.B</code></pre>
+<pre><code>## 
+##   Bayesian network parameters
+## 
+##   Parameters of node X (Gaussian distribution)
+## 
+## Conditional density: X | Y
+## Coefficients:
+## (Intercept)            Y  
+##   84.038697     3.478402  
+## Standard deviation of the residuals: 14.52296 
+## 
+##   Parameters of node Y (Gaussian distribution)
+## 
+## Conditional density: Y
+## Coefficients:
+## (Intercept)  
+##       4.682  
+## Standard deviation of the residuals: 1.035599</code></pre>
+<p>It may look different, but model B has the same joint distribution for X and Y as A does.</p>
+<p>It may also look a bit strange to you. We have an intuition that IQ is determined first and has at least some influence on a person’s income. We would usually have IQ as the independent variable and income as the dependent variable in linear regressions, and the same practice makes sense here. That is, it’s more natural for arrows in a diagram to point from cause to effect. Future posts will discuss this point further.</p>
+<p>C is different from A and B. It has a built-in assumption that X and Y are independent; <span class="math inline">\(X \perp\!\!\!\perp Y\)</span>. So, it just fits the marginal distributions for X and Y. We know how we generated our data so we know in advance this won’t fit as well in this case.</p>
+<p>Since A and B can model the same set of possible distributions, we say they are <strong>observationally equivalent</strong>. C can only fit the subset of distributions for which <span class="math inline">\(X \perp\!\!\!\perp Y\)</span>, so C is not observationally equivalent to A and B.</p>
+<p>In the next post, we’ll extend Bayesian networks so that the arrows represent causal assumptions about how the data.</p>
