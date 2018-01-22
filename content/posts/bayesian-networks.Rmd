@@ -89,4 +89,4 @@ C is different from A and B. It has a built-in assumption that X and Y are indep
 
 Since A and B can model the same set of possible distributions, we say they are **observationally equivalent**. C can only fit the subset of distributions for which $X \perp\!\!\!\perp Y$, so C is not observationally equivalent to A and B.
 
-In the next post, we'll extend Bayesian networks so that the arrows represent causal assumptions about how the data.
+In the next post, we'll extend Bayesian networks so that the arrows represent causal assumptions about variables in the model.
