@@ -2,7 +2,7 @@
 title = "Projects"
 date = "2018-01-22"
 menu = "main"
-weight = "19"
+weight = "10"
 meta = "false"
 +++
 
