@@ -60,14 +60,18 @@ Interventions are written as e.g. $\mathrm{do(X = x)}$ The probability distribut
 
 Interventions generally change the distribution of a network. This change is not in general the same among observationally equivalent networks. e.g. in the case of our models A and B, $P_A(Y\,|\,\mathrm{do}(X = x))\neq P_B(Y\,|\,\mathrm{do}(X = x))$
 
-This is what it looks like if we intervene with $\mathrm{do}(Y = 20)$ (e.g. an annual income of $\$10^{20}$(!)).
+This is what it looks like if we intervene with $\mathrm{do}(Y = 20)$ (e.g. an annual income of $\$10^{20}$(!)), for each of the three representations of a causal network we covered.
+
+### Network Structure
+```{r, message=FALSE}
+library(bnlearn)
+```
 
 ```{r}
-library(bnlearn)
 mdl.A <- model2network('[X][Y|X]')
 mdl.B <- model2network('[X|Y][Y]')
 
-# 'mutilated' also works for fitted BNs
+# 'mutilated' is for interventions, it sets nodes to constants and cuts their incoming arrows
 mut.A <- mutilated(mdl.A, list(Y = 20))
 mut.B <- mutilated(mdl.B, list(Y = 20))
 mut.B$arcs <- rbind(mut.B$arcs) # 'mutilated' is broken when returning one edge, need to cast edges to matrix
@@ -81,6 +85,7 @@ plot(mdl.B, main='B')
 plot(mut.B, main='B | do(Y = 20)')
 ```
 
+### SEM
 (A | do(Y = 20))
 $$
 \begin{align*}
@@ -97,17 +102,19 @@ Y &= 20
 \end{align*}
 $$
 
+
+### Data generating process
 ```{r}
 set.seed(544)
 #
 eps_X.A.mut <-rnorm(n, 0, 15)
 eps_Y.A.mut <- rnorm(n, 0, 1)
 X.A.mut <- 100 + eps_X.A.mut
-Y.A.mut <- rep(20, n)
+Y.A.mut <- rep(20, n) # Intervention
 #
 eps_X.B.mut <- rnorm(n, 0, sqrt(60^2/17))
 eps_Y.B.mut <- rnorm(n, 0, sqrt(17/16))
-Y.B.mut <- rep(20, n)
+Y.B.mut <- rep(20, n) # Intervention
 X.B.mut <- 80 + 60*Y.B.mut/17 + eps_X.B.mut
 ```
 
