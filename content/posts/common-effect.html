@@ -31,7 +31,7 @@ df &lt;- data.frame(apt, gpa, sat)</code></pre>
 <p>If we plot SAT and GPA, we see a clear positive correlation. This is a spurious correlation created by the common cause of latent aptitude. The relationship isn’t causal in the sense that if one were to hack into the College Board and change their official SAT score, this would have no bearing on their GPA. The correlation is nonetheless interesting, especially considering the latent aptitude can’t be measured directly.</p>
 <pre class="r"><code>ggplot(df[1:nDisplay,], aes(gpa, sat)) +
   geom_point()</code></pre>
-<p><img src="/rmarkdown-libs/figure-html4/unnamed-chunk-3-1.png" width="672" /></p>
+<p><img src="/posts/common-effect_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 <p>Now, let’s add a new variable representing which university each student is attending. We’ll use a simplified model for assigning students to unviversities. Universities evaluate applications by summing the percentiles of the SATs and GPAs, and admit a student if that amount is higher than some cutoff. There are nine universities, and each has their own cutoff. Students attend the most selective university they were admitted to. This cleanly seperates the students into distinct groups.</p>
 <p>Each university studies the relationship between SAT and GPA for their own students. Let’s look at all of these studies on one plot.</p>
 <pre class="r"><code># This creates a categorical variable that stratifies a continuous variable
@@ -46,7 +46,7 @@ df$admit &lt;- gpa.norm + sat.norm + rnorm(nStudent, 0, 0.05)
 df$admit.strat &lt;- stratify(df$admit)</code></pre>
 <pre class="r"><code>ggplot(df[1:nDisplay,], aes(gpa, sat)) +
   geom_point(aes(color = admit.strat))</code></pre>
-<p><img src="/rmarkdown-libs/figure-html4/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="/posts/common-effect_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <p>This is the same data as before, but we’ve colored the points based on which university a student attends. The overall correlation is positive, but <em>within each university</em> the correlation is negative except in the top and bottom schools. Interesting.</p>
 <p>This is another type of spurious correlation commonly known as <strong>selection bias</strong> or <strong>Berkson’s paradox</strong>. The university a student attends is a <strong>common effect</strong>, which is a sort of inverse of a common cause in the effect it has on our analyses.</p>
 <p>A common effect starts out without introducing any spurious correlation. That would clearly be impossible in our example, as GPA and SAT are determined in high school before any student applies to any colleges.</p>
@@ -57,13 +57,13 @@ df$admit.l2.strat &lt;- stratify(admit.l2)
 
 ggplot(df[1:nDisplay,], aes(gpa, sat)) +
   geom_point(aes(color = admit.l2.strat))</code></pre>
-<p><img src="/rmarkdown-libs/figure-html4/unnamed-chunk-7-1.png" width="672" /></p>
+<p><img src="/posts/common-effect_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 <pre class="r"><code>admit.cos &lt;- 2*cos(3*gpa.norm)+sat.norm + rnorm(nStudent, 0, 0.1)
 df$admit.cos.strat &lt;- stratify(admit.cos)
 
 ggplot(df[1:nDisplay,], aes(gpa, sat)) +
   geom_point(aes(color = admit.cos.strat))</code></pre>
-<p><img src="/rmarkdown-libs/figure-html4/unnamed-chunk-8-1.png" width="672" /></p>
+<p><img src="/posts/common-effect_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 <pre class="r"><code>angles = 2*pi/5*(0:4)
 mat &lt;- cbind(cos(angles)+sin(angles), sin(angles)-cos(angles))
 vars &lt;- rbind(gpa.norm, sat.norm)
@@ -74,7 +74,7 @@ df$admit.partition &lt;- factor(colSums(matrix(bitwShiftL(halfplaneIx, shifter),
 
 ggplot(df[1:nDisplay,], aes(gpa, sat)) +
   geom_point(aes(color = admit.partition))</code></pre>
-<p><img src="/rmarkdown-libs/figure-html4/unnamed-chunk-9-1.png" width="672" /></p>
+<p><img src="/posts/common-effect_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 <div id="learning-causal-structure-with-common-effects" class="section level2">
 <h2>Learning causal structure with common effects</h2>
 <p>Among intermediate causes, common causes, and common effects, common effects are special. They have the opposite effect from the other two, obervationally.</p>
@@ -85,7 +85,7 @@ If Z is a common effect for X and Y:
 <p>It’s for exactly this reason that we can distinguish them from data with <code>gs</code>.</p>
 <pre class="r"><code>result = gs(df[,c(&#39;apt&#39;, &#39;gpa&#39;, &#39;admit&#39;, &#39;sat&#39;)])
 plot(result)</code></pre>
-<p><img src="/rmarkdown-libs/figure-html4/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="/posts/common-effect_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <p>These dependencies and conditional dependencies are determined by <code>gs</code> with linear regression, as usual.</p>
 </div>
 <div id="inheritance-of-height" class="section level2">
