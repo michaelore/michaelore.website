@@ -41,7 +41,7 @@ graphviz.plot(bn, hl)
 
 For a more realistic model, we can consider that there's a distinction between telling someone to go to war (putting them in the experimental group) and them actually going to war. Let Z repesent the experimental group a subject is assigned to.
 
-```{r}
+```{r, echo=FALSE}
 bn <- model2network('[Z][L][X|L:Z][Y|X:L]')
 graphviz.plot(bn)
 ```
