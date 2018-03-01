@@ -10,6 +10,8 @@ summaryLength = 30
 enableEmoji = true
 pygmentsCodeFences = true
 
+disqusShortname = "michaelore"
+
 [author]
     name = ""
     github = ""
