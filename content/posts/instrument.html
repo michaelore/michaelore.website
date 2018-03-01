@@ -1,0 +1,89 @@
+---
+title: "Natural Experiments and Instrumental Variables Estimation"
+author: "Michael Ore"
+date: 2018-03-01
+categories: []
+tags: ["bayesianism", "R", "causality"]
+---
+
+
+
+<p>Now we consider the problem of measuring the strength of causal effects in the presence of confounding variables. As an example, let X be whether a person is a veteran and Y be their income.</p>
+<p>It’s easy to compute the correlation between X and Y, but we’re specifically interested in the portion of that correlation that is from the causal effect of X on Y.</p>
+<p>To put it more formally, we’re interested in the difference in the expected value of Y if we were to intervene and force someone to participate in a war vs if we were to force them not to. We’ll call this <span class="math inline">\(\alpha\)</span>.
+<span class="math display">\[\alpha = E[Y\,|\,do(X=1)]-E[Y\,|\,do(X=0)]\]</span></p>
+<p>What we can most easily measure given some observational data is the difference in expected value of Y between the groups of people who happened to participate in a war or not in our data. This is exactly the regression coefficient if we were to do a linear regression of Y vs just X.
+<span class="math display">\[\rho_{YX} = E[Y\,|\,X=1]-E[Y\,|\,X=0]\]</span></p>
+<p>Without any confounders, <span class="math inline">\(\alpha = \rho_{YX}\)</span>. However, this is not in general the case if we do have confounders.</p>
+<p>Let L represent all latent confounding variables, i.e. all variables that have a causal effect on both X and Y. If we can measure L, perhaps if something such as their parents’ income is the only confounder, we can include that in a regression and thereby adequately adjust for it.</p>
+<pre class="r"><code>library(bnlearn)
+library(ggplot2)
+library(tidyr)</code></pre>
+<pre><code>## Loading required namespace: Rgraphviz</code></pre>
+<p><img src="/posts/instrument_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>Typically, it isn’t so easy to adjust for confounders. There can be many. We have a couple options. We could find as many possible confounders as we can, adjust for them, and hope that’s enough. Another option is the gold standard in science: experimentation. One can think of an experiment as a direct measurement of the effect of intervention. Graphically, an intervention on X would sever the connection between L and X. L can no longer act as a confounder, and <span class="math inline">\(\alpha\)</span> can be measured from the experimental data.</p>
+<p><img src="/posts/instrument_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>For a more realistic model, we can consider that there’s a distinction between telling someone to go to war (putting them in the experimental group) and them actually going to war. Let Z repesent the experimental group a subject is assigned to.</p>
+<pre class="r"><code>bn &lt;- model2network(&#39;[Z][L][X|L:Z][Y|X:L]&#39;)
+graphviz.plot(bn)</code></pre>
+<p><img src="/posts/instrument_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>In the context of clinical trials, subjects neglecting to take the medication they were assigned is termed <strong>noncompliance</strong>. Since there can be a correlation between a subject’s noncompliance and the outcome, our experiment weakens the causal connection between X and L but it isn’t fully eliminated. The relationship between Z and Y is a good approximation to the relationship between X and Y to the extent that noncompliance can be kept low.</p>
+<p>For this reason, clinical trials often report the effect of the <strong>intent-to-treat</strong> (Z) rather than the effect of the treatment itself (X). This can actually result in a more accurate generalization to a doctor’s intent to treat via prescribing a medication, although rates of noncompliance may differ in clinical trials vs clinical practice. So, it would be more ideal if we could measure and use the effect of X itself.</p>
+<p>Back to our example of veteran status vs income, another problem we face is that our proposed experiment is unethical. Our desire to learn about the impact of veteran status on future income is not a good reason to ask or force anyone to join the military. However…</p>
+<p>We have forced people into the military in the past, with drafts. This process is even randomized. Intent to perform an experiment is irrelevant, randomized assignment with reasonably low noncompliance is sufficient to measure the effect of intervention. We would call such an assignment a <strong>natural experiment</strong>.</p>
+<div id="instrumental-variables-estimation" class="section level2">
+<h2>Instrumental variables estimation</h2>
+<p>Now we’ll discuss a method, <strong>instrumental variables estimation</strong>, for adjusting for strong noncompliance-like effects, whether we see them in natural or “artificial” experiments.</p>
+<p>For an example, I’ll use a simplified, simulated version of a study on the effect of (compulsory) school attendance on income that used instrumental variables estimation. (Angrist et al. 1991)<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
+<p>We’ll let our X be the number of years someone spent in school and Y be their income. L represents all confounders as usual. Our Z (termed the <strong>instrumental variable</strong>) will be the person’s birthday(!).</p>
+<p>The effect of Z on years in school is from differences is number of compulsory school years from quirks in that regulation. In the data used in the study, students are required to begin school in fall of the calendar year that they turn six. They’re required to remain in school until their sixteenth birthday. They can then drop out of school immediately if they want, even if it’s in the middle of the school year.</p>
+<p>Their age when they can leave school is fixed (exactly 16 years), but the age that they’re required to begin school varies with a discontinuous change between a birthday of December 31st and January 1st.</p>
+<p>For our simplified model, let’s suppose that how long a student wants to remain in school is normally distributed. If this is less than the time that they’re required to be in school, they wait until their 16th birthday and drop out immediately.</p>
+<pre class="r"><code>set.seed(52)
+
+nStudent &lt;- 1000000
+nDisplay &lt;- 1000
+
+fall.semester &lt;- 3/4
+
+latent &lt;- rnorm(nStudent, 0, 1)
+
+desired.schooling &lt;- 13 + 3*latent + rnorm(nStudent, 0, 0.1)
+birthday &lt;- runif(nStudent, 0, 365)/365
+min.schooling &lt;- 10 + birthday - fall.semester
+actual.schooling &lt;- pmax(desired.schooling, min.schooling) + rnorm(nStudent, 0, 0.2)</code></pre>
+<p>In effect, some of the probability density on the lower tail of desired schooling is pushed to the right by a variable amount depending on the student’s birthday.</p>
+<pre class="r"><code>agg &lt;- gather(data.frame(desired.schooling, actual.schooling))
+
+ggplot(agg) +
+  geom_density(aes(value, fill = key), alpha=0.2)</code></pre>
+<p><img src="/posts/instrument_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>Now we compute the students’ log income. This depends partly on the years they spend in school and partly on the confounding latent variable (plus some random noise). You can see the <span class="math inline">\(\alpha = 0.1\)</span> coefficient on schooling that we’ll try to measure from the data.</p>
+<pre class="r"><code>alpha &lt;- 0.1
+log.wages &lt;- 6 + alpha*actual.schooling + 0.2*latent + rnorm(nStudent, 0, 0.1)</code></pre>
+<pre class="r"><code>wages.vs.schooling &lt;- lm(log.wages ~ actual.schooling)
+summary(wages.vs.schooling)$coefficients</code></pre>
+<pre><code>##                   Estimate   Std. Error  t value Pr(&gt;|t|)
+## (Intercept)      5.0324147 5.625840e-04 8945.179        0
+## actual.schooling 0.1731975 4.174565e-05 4148.875        0</code></pre>
+<p>A regression between log income and years in school gives us <span class="math inline">\(\rho_{YX} =\)</span> 0.1731975 <span class="math inline">\(\neq \alpha = 0.1\)</span>. Confounding biases our estimate here.</p>
+<p>Let’s say <span class="math inline">\(\beta = \rho_{XZ}\)</span> is the regression coefficient for years in school(X) vs a student’s birthday(Z) (in fraction of a full year from January 1st).</p>
+<pre class="r"><code>schooling.vs.birthday &lt;- lm(actual.schooling ~ birthday)
+beta.hat &lt;- coef(schooling.vs.birthday)[&#39;birthday&#39;]
+beta.hat</code></pre>
+<pre><code>##  birthday 
+## 0.1450481</code></pre>
+<p>Now for the key step. We measure the relationship between birthday(Z) and log income(Y). We can assume years in school(X) is the <em>sole intermediate cause</em> between Z and Y. We can also assume that birthdays are determined totally randomly and therefore have no confounding common causes with income. Then the regression coefficient for Y vs Z is <span class="math inline">\(\rho_{YZ} = \beta\alpha\)</span>.</p>
+<pre class="r"><code>wages.vs.birthday &lt;- lm(log.wages ~ birthday)
+beta.alpha.hat &lt;- coef(wages.vs.birthday)[&#39;birthday&#39;]
+beta.alpha.hat</code></pre>
+<pre><code>##   birthday 
+## 0.01456712</code></pre>
+<p>Our instrumental variables estimate of <span class="math inline">\(\alpha = 0.1\)</span> is then simply: <span class="math inline">\(\hat{\alpha} = \frac{\hat{\beta}\hat{\alpha}}{\hat{\beta}} =\)</span> 0.0145671/0.1450481. <span class="math inline">\(=\)</span> 0.1004295. This is close to the true value.</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Angrist, Joshua D., and Alan B. Keueger. “Does compulsory school attendance affect schooling and earnings?.” The Quarterly Journal of Economics 106.4 (1991): 979-1014.<a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</div>
