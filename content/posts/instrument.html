@@ -13,8 +13,8 @@ tags: ["bayesianism", "R", "causality"]
 <p>To put it more formally, we’re interested in the difference in the expected value of Y if we were to intervene and force someone to participate in a war vs if we were to force them not to. We’ll call this <span class="math inline">\(\alpha\)</span>.
 <span class="math display">\[\alpha = E[Y\,|\,do(X=1)]-E[Y\,|\,do(X=0)]\]</span></p>
 <p>What we can most easily measure given some observational data is the difference in expected value of Y between the groups of people who happened to participate in a war or not in our data. This is exactly the regression coefficient if we were to do a linear regression of Y vs just X.
-<span class="math display">\[\rho_{YX} = E[Y\,|\,X=1]-E[Y\,|\,X=0]\]</span></p>
-<p>Without any confounders, <span class="math inline">\(\alpha = \rho_{YX}\)</span>. However, this is not in general the case if we do have confounders.</p>
+<span class="math display">\[r_{YX} = E[Y\,|\,X=1]-E[Y\,|\,X=0]\]</span></p>
+<p>Without any confounders, <span class="math inline">\(\alpha = r_{YX}\)</span>. However, this is not in general the case if we do have confounders.</p>
 <p>Let L represent all latent confounding variables, i.e. all variables that have a causal effect on both X and Y. If we can measure L, perhaps if something such as their parents’ income is the only confounder, we can include that in a regression and thereby adequately adjust for it.</p>
 <pre class="r"><code>library(bnlearn)
 library(ggplot2)
@@ -64,14 +64,14 @@ summary(wages.vs.schooling)$coefficients</code></pre>
 <pre><code>##                   Estimate   Std. Error  t value Pr(&gt;|t|)
 ## (Intercept)      5.0324147 5.625840e-04 8945.179        0
 ## actual.schooling 0.1731975 4.174565e-05 4148.875        0</code></pre>
-<p>A regression between log income and years in school gives us <span class="math inline">\(\rho_{YX} =\)</span> 0.1731975 <span class="math inline">\(\neq \alpha = 0.1\)</span>. Confounding biases our estimate here.</p>
-<p>Let’s say <span class="math inline">\(\beta = \rho_{XZ}\)</span> is the regression coefficient for years in school(X) vs a student’s birthday(Z) (in fraction of a full year from January 1st).</p>
+<p>A regression between log income and years in school gives us <span class="math inline">\(r_{YX} =\)</span> 0.1731975 <span class="math inline">\(\neq \alpha = 0.1\)</span>. Confounding biases our estimate here.</p>
+<p>Let’s say <span class="math inline">\(\beta = r_{XZ}\)</span> is the regression coefficient for years in school(X) vs a student’s birthday(Z) (in fraction of a full year from January 1st).</p>
 <pre class="r"><code>schooling.vs.birthday &lt;- lm(actual.schooling ~ birthday)
 beta.hat &lt;- coef(schooling.vs.birthday)[&#39;birthday&#39;]
 beta.hat</code></pre>
 <pre><code>##  birthday 
 ## 0.1450481</code></pre>
-<p>Now for the key step. We measure the relationship between birthday(Z) and log income(Y). We can assume years in school(X) is the <em>sole intermediate cause</em> between Z and Y. We can also assume that birthdays are determined totally randomly and therefore have no confounding common causes with income. Then the regression coefficient for Y vs Z is <span class="math inline">\(\rho_{YZ} = \beta\alpha\)</span>.</p>
+<p>Now for the key step. We measure the relationship between birthday(Z) and log income(Y). We can assume years in school(X) is the <em>sole intermediate cause</em> between Z and Y. We can also assume that birthdays are determined totally randomly and therefore have no confounding common causes with income. Then the regression coefficient for Y vs Z is <span class="math inline">\(r_{YZ} = \beta\alpha\)</span>.</p>
 <pre class="r"><code>wages.vs.birthday &lt;- lm(log.wages ~ birthday)
 beta.alpha.hat &lt;- coef(wages.vs.birthday)[&#39;birthday&#39;]
 beta.alpha.hat</code></pre>

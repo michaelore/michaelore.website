@@ -14,9 +14,9 @@ To put it more formally, we're interested in the difference in the expected valu
 $$\alpha = E[Y\,|\,do(X=1)]-E[Y\,|\,do(X=0)]$$
 
 What we can most easily measure given some observational data is the difference in expected value of Y between the groups of people who happened to participate in a war or not in our data. This is exactly the regression coefficient if we were to do a linear regression of Y vs just X.
-$$\rho_{YX} = E[Y\,|\,X=1]-E[Y\,|\,X=0]$$
+$$r_{YX} = E[Y\,|\,X=1]-E[Y\,|\,X=0]$$
 
-Without any confounders, $\alpha = \rho_{YX}$. However, this is not in general the case if we do have confounders.
+Without any confounders, $\alpha = r_{YX}$. However, this is not in general the case if we do have confounders.
 
 Let L represent all latent confounding variables, i.e. all variables that have a causal effect on both X and Y. If we can measure L, perhaps if something such as their parents' income is the only confounder, we can include that in a regression and thereby adequately adjust for it.
 
@@ -105,9 +105,9 @@ wages.vs.schooling <- lm(log.wages ~ actual.schooling)
 summary(wages.vs.schooling)$coefficients
 ```
 
-A regression between log income and years in school gives us $\rho_{YX} =$ `r coef(wages.vs.schooling)['actual.schooling']` $\neq \alpha = 0.1$. Confounding biases our estimate here.
+A regression between log income and years in school gives us $r_{YX} =$ `r coef(wages.vs.schooling)['actual.schooling']` $\neq \alpha = 0.1$. Confounding biases our estimate here.
 
-Let's say $\beta = \rho_{XZ}$ is the regression coefficient for years in school(X) vs a student's birthday(Z) (in fraction of a full year from January 1st).
+Let's say $\beta = r_{XZ}$ is the regression coefficient for years in school(X) vs a student's birthday(Z) (in fraction of a full year from January 1st).
 
 ```{r}
 schooling.vs.birthday <- lm(actual.schooling ~ birthday)
@@ -115,7 +115,7 @@ beta.hat <- coef(schooling.vs.birthday)['birthday']
 beta.hat
 ```
 
-Now for the key step. We measure the relationship between birthday(Z) and log income(Y). We can assume years in school(X) is the *sole intermediate cause* between Z and Y. We can also assume that birthdays are determined totally randomly and therefore have no confounding common causes with income. Then the regression coefficient for Y vs Z is $\rho_{YZ} = \beta\alpha$.
+Now for the key step. We measure the relationship between birthday(Z) and log income(Y). We can assume years in school(X) is the *sole intermediate cause* between Z and Y. We can also assume that birthdays are determined totally randomly and therefore have no confounding common causes with income. Then the regression coefficient for Y vs Z is $r_{YZ} = \beta\alpha$.
 
 ```{r}
 wages.vs.birthday <- lm(log.wages ~ birthday)
