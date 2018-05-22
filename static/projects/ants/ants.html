@@ -1,0 +1,27 @@
+<!doctype html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+
+        <title>Ant Simulator</title>
+        <meta name="description" content="ANTS">
+        <meta name="author" content="Mickey">
+
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/color-js@1.0.3"></script>
+        <link rel="stylesheet" href="css/ants.css">
+    </head>
+
+    <body>
+        <div id="app">
+            <table style="background-color: black;">
+                <tr v-for="row in grid">
+                    <td is="maze-cell" v-for="cell in row" v-bind:cell="cell">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <script src="js/ants.js"></script>
+    </body>
+</html>

@@ -1,0 +1,24 @@
+.cell {
+    width: 15px;
+    height: 20px;
+}
+
+.empty {
+    background: url(../img/ascii.png) 0 0;
+}
+
+.wall {
+    background: url(../img/ascii.png) -30px -220px;
+}
+
+.ant {
+    background: url(../img/ascii.png) -15px -120px;
+}
+
+.dwarf {
+    background: url(../img/ascii.png) -15px 0;
+}
+
+.bigant {
+    background: url(../img/ascii.png) -15px -80px;
+}
