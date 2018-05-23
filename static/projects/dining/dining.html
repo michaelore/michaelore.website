@@ -1,0 +1,115 @@
+<!doctype html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+
+        <title>Philosopher Simulator</title>
+        <meta name="description" content="HMMMM">
+        <meta name="author" content="Mickey">
+
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <link rel="stylesheet" href="css/dining.css">
+    </head>
+
+    <body>
+        <div id="app">
+            <table>
+                <tr v-for="(state, ix) in states">
+                    <td>
+                        {{ names[ix] }}
+                    </td>
+                    <td>
+                        - {{ state }}
+                    </td>
+                </tr>
+            </table>
+            <floater v-bind:img="'img/phil0.jpg'" v-bind:pos="0"
+                v-bind:rad="1" v-bind:rot="0" class="philosopher">
+            </floater>
+            <floater v-bind:img="'img/phil1.jpg'" v-bind:pos="2"
+                v-bind:rad="1" v-bind:rot="0" class="philosopher">
+            </floater>
+            <floater v-bind:img="'img/phil2.jpg'" v-bind:pos="4"
+                v-bind:rad="1" v-bind:rot="0" class="philosopher">
+            </floater>
+            <floater v-bind:img="'img/phil3.jpg'" v-bind:pos="6"
+                v-bind:rad="1" v-bind:rot="0" class="philosopher">
+            </floater>
+            <floater v-bind:img="'img/phil4.jpg'" v-bind:pos="8"
+                v-bind:rad="1" v-bind:rot="0" class="philosopher">
+            </floater>
+            <floater v-bind:img="'img/fork.png'" v-bind:pos="1"
+                v-bind:rad="1" v-bind:rot="6" class="fork">
+            </floater>
+            <floater v-bind:img="'img/fork.png'" v-bind:pos="3"
+                v-bind:rad="1" v-bind:rot="8" class="fork">
+            </floater>
+            <floater v-bind:img="'img/fork.png'" v-bind:pos="5"
+                v-bind:rad="1" v-bind:rot="0" class="fork">
+            </floater>
+            <floater v-bind:img="'img/fork.png'" v-bind:pos="7"
+                v-bind:rad="1" v-bind:rot="2" class="fork">
+            </floater>
+            <floater v-bind:img="'img/fork.png'" v-bind:pos="9"
+                v-bind:rad="1" v-bind:rot="4" class="fork">
+            </floater>
+            <floater v-bind:img="'img/spaghetti.png'" v-bind:pos="0"
+                v-bind:rad="0.5" v-bind:rot="0"  class="spaghetti">
+            </floater>
+            <floater v-bind:img="'img/spaghetti.png'" v-bind:pos="2"
+                v-bind:rad="0.5" v-bind:rot="0"  class="spaghetti">
+            </floater>
+            <floater v-bind:img="'img/spaghetti.png'" v-bind:pos="4"
+                v-bind:rad="0.5" v-bind:rot="0"  class="spaghetti">
+            </floater>
+            <floater v-bind:img="'img/spaghetti.png'" v-bind:pos="6"
+                v-bind:rad="0.5" v-bind:rot="0"  class="spaghetti">
+            </floater>
+            <floater v-bind:img="'img/spaghetti.png'" v-bind:pos="8"
+                v-bind:rad="0.5" v-bind:rot="0"  class="spaghetti">
+            </floater>
+            <floater v-bind:img="'img/hand.jpg'" v-bind:pos="1"
+                v-bind:rad="1" v-bind:rot="3"
+                v-bind:hide="!lhand[0]" class="hand">
+            </floater>
+            <floater v-bind:img="'img/hand.jpg'" v-bind:pos="3"
+                v-bind:rad="1" v-bind:rot="5"
+                v-bind:hide="!lhand[1]" class="hand">
+            </floater>
+            <floater v-bind:img="'img/hand.jpg'" v-bind:pos="5"
+                v-bind:rad="1" v-bind:rot="7"
+                v-bind:hide="!lhand[2]" class="hand">
+            </floater>
+            <floater v-bind:img="'img/hand.jpg'" v-bind:pos="7"
+                v-bind:rad="1" v-bind:rot="9"
+                v-bind:hide="!lhand[3]" class="hand">
+            </floater>
+            <floater v-bind:img="'img/hand.jpg'" v-bind:pos="9"
+                v-bind:rad="1" v-bind:rot="1"
+                v-bind:hide="!lhand[4]" class="hand">
+            </floater>
+            <floater v-bind:img="'img/hand.jpg'" v-bind:pos="1"
+                v-bind:rad="1" v-bind:rot="9" :flip="true"
+                v-bind:hide="!rhand[1]" class="hand">
+            </floater>
+            <floater v-bind:img="'img/hand.jpg'" v-bind:pos="3"
+                v-bind:rad="1" v-bind:rot="1" :flip="true"
+                v-bind:hide="!rhand[2]" class="hand">
+            </floater>
+            <floater v-bind:img="'img/hand.jpg'" v-bind:pos="5"
+                v-bind:rad="1" v-bind:rot="3" :flip="true"
+                v-bind:hide="!rhand[3]" class="hand">
+            </floater>
+            <floater v-bind:img="'img/hand.jpg'" v-bind:pos="7"
+                v-bind:rad="1" v-bind:rot="5" :flip="true"
+                v-bind:hide="!rhand[4]" class="hand">
+            </floater>
+            <floater v-bind:img="'img/hand.jpg'" v-bind:pos="9"
+                v-bind:rad="1" v-bind:rot="7" :flip="true"
+                v-bind:hide="!rhand[0]" class="hand">
+            </floater>
+        </div>
+        <script src="js/dining.js"></script>
+    </body>
+</html>

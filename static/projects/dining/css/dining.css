@@ -1,0 +1,56 @@
+.philosopher {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    margin-left: -50px;
+    margin-top: -50px;
+}
+
+.fork {
+    position: absolute;
+    width: 10px;
+    height: 80px;
+    margin-left: -5px;
+    margin-top: -40px;
+}
+
+.spaghetti {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    margin-left: -25px;
+    margin-top: -25px;
+}
+
+.hand {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    margin-left: -40px;
+    margin-top: -40px;
+    z-index: -1;
+}
+
+.flip {
+    transform: scaleX(-1);
+}
+
+.empty {
+    background: url(../img/ascii.png) 0 0;
+}
+
+.wall {
+    background: url(../img/ascii.png) -30px -220px;
+}
+
+.ant {
+    background: url(../img/ascii.png) -15px -120px;
+}
+
+.dwarf {
+    background: url(../img/ascii.png) -15px 0;
+}
+
+.bigant {
+    background: url(../img/ascii.png) -15px -80px;
+}
